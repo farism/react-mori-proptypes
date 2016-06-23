@@ -27,7 +27,9 @@
     "url": "https://github.com/farism/react-mori-proptypes/issues"
   },
   "homepage": "https://github.com/farism/react-mori-proptypes#readme",
-  "dependencies": {},
+  "peerDependencies": {
+    "mori": "^0.3.2"
+  },
   "devDependencies": {
     "babel-loader": "^6.2.4",
     "babel-plugin-add-module-exports": "^0.2.1",
