@@ -4,6 +4,7 @@
   "description": "React PropType validators for mori",
   "main": "dist/MoriPropTypes.js",
   "scripts": {
+    "clean": "rm -rf dist",
     "dev": "node -r babel-register scripts/webpack/server.js",
     "build": "NODE_ENV=production node -r babel-register ./node_modules/webpack/bin/webpack --config scripts/webpack/webpack.config.production.js --progress --profile --colors",
     "lint": "eslint src test *.js",
@@ -39,6 +40,7 @@
     "babel-preset-react-hmre": "^1.1.1",
     "babel-preset-stage-0": "^6.5.0",
     "babel-register": "^6.9.0",
+    "chai": "^3.5.0",
     "eslint": "^2.13.1",
     "eslint-config-airbnb": "^9.0.1",
     "eslint-import-resolver-webpack": "^0.3.1",
@@ -47,8 +49,13 @@
     "eslint-plugin-react": "^5.2.2",
     "express": "^4.14.0",
     "jsdom": "^9.2.1",
+    "mocha": "^2.5.3",
+    "react": "^15.1.0",
     "webpack": "^1.13.1",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.10.0"
+  },
+  "dependencies": {
+    "mori": "^0.3.2"
   }
 }

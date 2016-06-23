@@ -9,4 +9,5 @@ deployment:
   production:
     branch: master
     commands:
+      - npm run clean
       - npm run build
