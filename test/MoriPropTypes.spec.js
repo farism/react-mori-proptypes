@@ -5,6 +5,7 @@ import React from 'react'
 
 import PropTypes from '../src/MoriPropTypes'
 
+const REQUIRED = 'Required prop `testProp` was not specified in `testComponent`.'
 const TEST_PROP = 'testProp'
 const TEST_COMPONENT = 'testComponent'
 const LOCATION = 'prop'
@@ -33,7 +34,7 @@ const pass = (declaration, value) => {
     LOCATION,
   )
 
-  expect(error).to.not.be.ok
+  return expect(error).to.not.be.ok
 }
 
 const fail = (declaration, value, message) => {
@@ -41,13 +42,13 @@ const fail = (declaration, value, message) => {
 
   const error = declaration(
     props,
-    'testProp',
-    'testComponent',
-    'prop',
+    TEST_PROP,
+    TEST_COMPONENT,
+    LOCATION,
   )
 
-  expect(error instanceof Error).to.be.true
   expect(error.message).to.equal(message)
+  expect(error instanceof Error).to.be.true
 }
 
 const failAll = (declaration, typeCheck, exclude) => {
@@ -57,7 +58,7 @@ const failAll = (declaration, typeCheck, exclude) => {
         declaration,
         TYPES[type],
         `Invalid prop \`${TEST_PROP}\` of type \`${type}\` supplied to ` +
-        `\`${TEST_COMPONENT}\`, expected \`${typeCheck}\`.`
+        `\`${TEST_COMPONENT}\`, expected a \`${typeCheck}\`.`
       )
     }
   })
@@ -69,7 +70,6 @@ describe('MoriPropTypes', () => {
 
     })
   })
-
 
   describe('Primitive Types', () => {
     it('should not warn for valid values', () => {
@@ -86,11 +86,11 @@ describe('MoriPropTypes', () => {
     })
   })
 
-  it('should warn for invalid hashMaps', () => {
+  it('should warn for invalid hashMap', () => {
     failAll(PropTypes.map, 'Mori.map', ['Mori.map', 'Mori.sortedMap'])
   })
 
-  it('should warn for invalid lists', () => {
+  it('should warn for invalid list', () => {
     failAll(PropTypes.list, 'Mori.list', ['Mori.list'])
   })
 
@@ -113,214 +113,105 @@ describe('MoriPropTypes', () => {
   it('should warn for invalid vector', () => {
     failAll(PropTypes.vec, 'Mori.vec', ['Mori.vec'])
   })
+
+  describe('listOf Type', () => {
+    it('should support the listOf propTypes', () => {
+      pass(PropTypes.listOf(React.PropTypes.number), mori.list(1, 2, 3))
+      pass(PropTypes.listOf(React.PropTypes.string), mori.list('a', 'b', 'c'))
+      pass(PropTypes.listOf(React.PropTypes.oneOf(['a', 'b'])), mori.list('a', 'b'))
+    })
+
+    it('should support listOf with complex types', () => {
+      pass(
+        PropTypes.listOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.list({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.listOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.list({ a: 1 }, { a: 2 })
+      )
+
+      function Thing() {}
+      pass(
+        PropTypes.listOf(React.PropTypes.instanceOf(Thing)),
+        mori.list(new Thing(), new Thing())
+      )
+    })
+
+    it('should warn with invalid items in the list', () => {
+      fail(
+        PropTypes.listOf(React.PropTypes.number),
+        mori.list(1, 2, 'b'),
+        'Invalid prop `testProp[2]` of type `string` ' +
+        'supplied to `testComponent`, expected `number`.'
+      )
+    })
+
+    it('should warn with invalid complex types', () => {
+      function Thing() {}
+      const name = Thing.name || '<<anonymous>>'
+
+      fail(
+        PropTypes.listOf(React.PropTypes.instanceOf(Thing)),
+        mori.list(new Thing(), 'xyz'),
+        'Invalid prop `testProp[1]` of type `String` ' +
+        'supplied to `testComponent`, expected instance of `' + name + '`.'
+      )
+    })
+
+    it('should warn when passed something other than a Mori.list', () => {
+      fail(
+        PropTypes.listOf(React.PropTypes.number),
+        { 0: 'maybe-array', length: 1 },
+        'Invalid prop `testProp` of type `object` supplied to ' +
+        '`testComponent`, expected a `Mori.list`.'
+      )
+      fail(
+        PropTypes.listOf(React.PropTypes.number),
+        123,
+        'Invalid prop `testProp` of type `number` supplied to ' +
+        '`testComponent`, expected a `Mori.list`.'
+      )
+      fail(
+        PropTypes.listOf(React.PropTypes.number),
+        'string',
+        'Invalid prop `testProp` of type `string` supplied to ' +
+        '`testComponent`, expected a `Mori.list`.'
+      )
+      fail(
+        PropTypes.listOf(React.PropTypes.number),
+        [1, 2, 3],
+        'Invalid prop `testProp` of type `array` supplied to ' +
+        '`testComponent`, expected a `Mori.list`.'
+      )
+    })
+
+    it('should not warn when passing an empty list', () => {
+      pass(PropTypes.listOf(React.PropTypes.number), mori.list())
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.listOf(React.PropTypes.number), null)
+      pass(PropTypes.listOf(React.PropTypes.number), undefined)
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.listOf(React.PropTypes.number).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.listOf(React.PropTypes.number).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+  })
 })
 
-// /* eslint-disable new-cap */
-// import expect from 'expect.js'
-// var PropTypes
-// var React
-// var Immutable
-//
-// var requiredMessage =
-//   'Required prop `testProp` was not specified in `testComponent`.'
-//
-// function fail(declaration, value, message) {
-//   var props = {testProp: value}
-//   var error = declaration(
-//     props,
-//     'testProp',
-//     'testComponent',
-//     'prop'
-//   )
-//   expect(error instanceof Error).to.be(true)
-//   expect(error.message).to.be(message)
-// }
-//
-// function typeCheckPass(declaration, value) {
-//   var props = {testProp: value}
-//   var error = declaration(
-//     props,
-//     'testProp',
-//     'testComponent',
-//     'prop'
-//   )
-//   expect(error).not.to.be.ok()
-// }
-//
-// describe('ImmutablePropTypes', function() {
-//   beforeEach(function() {
-//     PropTypes = require('../ImmutablePropTypes')
-//     React = require('react')
-//     Immutable = require('immutable')
-//   })
-//
-//   describe('PropTypes config', function() {
-//     it('should fail if typeChecker is not a function', function() {
-//       fail(
-//         PropTypes.listOf({x: React.PropTypes.string}),
-//         Immutable.List([Immutable.Map({x: 'y'})]),
-//         'Invalid typeChecker supplied to ' +
-//         '`testComponent` for propType `testProp`, expected a function.'
-//       )
-//       typeCheckPass(
-//         PropTypes.listOf(PropTypes.contains({x: React.PropTypes.string})),
-//         Immutable.List([Immutable.Map({x: 'y'})]))
-//     })
-//   })
-//
-//   describe('Primitive Types', function() {
-//     it('should not warn for valid values', function() {
-//       typeCheckPass(PropTypes.list, Immutable.List())
-//       typeCheckPass(PropTypes.map, Immutable.Map())
-//       typeCheckPass(PropTypes.map, Immutable.OrderedMap())
-//       typeCheckPass(PropTypes.orderedMap, Immutable.OrderedMap())
-//       typeCheckPass(PropTypes.record, new (Immutable.Record({a: 1}))())
-//       typeCheckPass(PropTypes.set, Immutable.Set())
-//       typeCheckPass(PropTypes.set, Immutable.OrderedSet())
-//       typeCheckPass(PropTypes.orderedSet, Immutable.OrderedSet())
-//       typeCheckPass(PropTypes.stack, Immutable.Stack())
-//       typeCheckPass(PropTypes.seq, Immutable.Seq())
-//       typeCheckPass(PropTypes.iterable, Immutable.Iterable())
-//       typeCheckPass(PropTypes.iterable, Immutable.List())
-//       typeCheckPass(PropTypes.iterable, Immutable.Map())
-//       typeCheckPass(PropTypes.iterable, Immutable.OrderedMap())
-//       typeCheckPass(PropTypes.iterable, Immutable.Set())
-//       typeCheckPass(PropTypes.iterable, Immutable.OrderedSet())
-//       typeCheckPass(PropTypes.iterable, Immutable.Stack())
-//       typeCheckPass(PropTypes.iterable, Immutable.Seq())
-//     })
-//     it('should warn for invalid lists', function() {
-//       fail(
-//         PropTypes.list,
-//         [],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected `List`.'
-//       )
-//       fail(
-//         PropTypes.list,
-//         {},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected `List`.'
-//       )
-//       fail(
-//         PropTypes.list,
-//         '',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected `List`.'
-//       )
-//       fail(
-//         PropTypes.list,
-//         false,
-//         'Invalid prop `testProp` of type `boolean` supplied to ' +
-//         '`testComponent`, expected `List`.'
-//       )
-//       fail(
-//         PropTypes.list,
-//         0,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected `List`.'
-//       )
-//       fail(
-//         PropTypes.list,
-//         Immutable.Map(),
-//         'Invalid prop `testProp` of type `Immutable.Map` supplied to ' +
-//         '`testComponent`, expected `List`.'
-//       )
-//       fail(
-//         PropTypes.list,
-//         Immutable.Iterable(),
-//         'Invalid prop `testProp` of type `Immutable.Seq` supplied to ' +
-//         '`testComponent`, expected `List`.'
-//       )
-//     })
-//     it('should warn for invalid maps', function() {
-//       fail(
-//         PropTypes.map,
-//         [],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected `Map`.'
-//       )
-//       fail(
-//         PropTypes.map,
-//         {},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected `Map`.'
-//       )
-//       fail(
-//         PropTypes.map,
-//         '',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected `Map`.'
-//       )
-//       fail(
-//         PropTypes.map,
-//         false,
-//         'Invalid prop `testProp` of type `boolean` supplied to ' +
-//         '`testComponent`, expected `Map`.'
-//       )
-//       fail(
-//         PropTypes.map,
-//         0,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected `Map`.'
-//       )
-//       fail(
-//         PropTypes.map,
-//         Immutable.List(),
-//         'Invalid prop `testProp` of type `Immutable.List` supplied to ' +
-//         '`testComponent`, expected `Map`.'
-//       )
-//       fail(
-//         PropTypes.map,
-//         Immutable.Iterable(),
-//         'Invalid prop `testProp` of type `Immutable.Seq` supplied to ' +
-//         '`testComponent`, expected `Map`.'
-//       )
-//     })
-//     it('should warn for invalid records', function() {
-//       fail(
-//         PropTypes.record,
-//         [],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected `Record`.'
-//       )
-//       fail(
-//         PropTypes.record,
-//         {},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected `Record`.'
-//       )
-//       fail(
-//         PropTypes.record,
-//         '',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected `Record`.'
-//       )
-//       fail(
-//         PropTypes.record,
-//         false,
-//         'Invalid prop `testProp` of type `boolean` supplied to ' +
-//         '`testComponent`, expected `Record`.'
-//       )
-//       fail(
-//         PropTypes.record,
-//         0,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected `Record`.'
-//       )
-//       fail(
-//         PropTypes.record,
-//         Immutable.List(),
-//         'Invalid prop `testProp` of type `Immutable.List` supplied to ' +
-//         '`testComponent`, expected `Record`.'
-//       )
-//       fail(
-//         PropTypes.record,
-//         Immutable.Iterable(),
-//         'Invalid prop `testProp` of type `Immutable.Seq` supplied to ' +
-//         '`testComponent`, expected `Record`.'
-//       )
-//     })
+
 //     it('should be implicitly optional and not warn without values', function() {
 //       typeCheckPass(PropTypes.list, null)
 //       typeCheckPass(PropTypes.list, undefined)
@@ -331,17 +222,17 @@ describe('MoriPropTypes', () => {
 //     })
 //   })
 //
-//   describe('ListOf Type', function() {
+//   describe('listOf Type', function() {
 //     it('should support the listOf propTypes', function() {
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.List([1, 2, 3]))
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.string), Immutable.List(['a', 'b', 'c']))
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.List(['a', 'b']))
+//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.list([1, 2, 3]))
+//       typeCheckPass(PropTypes.listOf(React.PropTypes.string), Immutable.list(['a', 'b', 'c']))
+//       typeCheckPass(PropTypes.listOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.list(['a', 'b']))
 //     })
 //
 //     it('should support listOf with complex types', function() {
 //       typeCheckPass(
 //         PropTypes.listOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.List([{a: 1}, {a: 2}])
+//         Immutable.list([{a: 1}, {a: 2}])
 //       )
 //
 //       typeCheckPass(
@@ -352,14 +243,14 @@ describe('MoriPropTypes', () => {
 //       function Thing() {}
 //       typeCheckPass(
 //         PropTypes.listOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.List([new Thing(), new Thing()])
+//         Immutable.list([new Thing(), new Thing()])
 //       )
 //     })
 //
 //     it('should warn with invalid items in the list', function() {
 //       fail(
 //         PropTypes.listOf(React.PropTypes.number),
-//         Immutable.List([1, 2, 'b']),
+//         Immutable.list([1, 2, 'b']),
 //         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
 //         'expected `number`.'
 //       )
@@ -371,42 +262,42 @@ describe('MoriPropTypes', () => {
 //
 //       fail(
 //         PropTypes.listOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.List([new Thing(), 'xyz']),
+//         Immutable.list([new Thing(), 'xyz']),
 //         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
 //         name + '`.'
 //       )
 //     })
 //
-//     it('should warn when passed something other than an Immutable.List', function() {
+//     it('should warn when passed something other than an Immutable.list', function() {
 //       fail(
 //         PropTypes.listOf(React.PropTypes.number),
 //         {'0': 'maybe-array', length: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js List.'
+//         '`testComponent`, expected a Mori.list.'
 //       )
 //       fail(
 //         PropTypes.listOf(React.PropTypes.number),
 //         123,
 //         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected an Immutable.js List.'
+//         '`testComponent`, expected a Mori.list.'
 //       )
 //       fail(
 //         PropTypes.listOf(React.PropTypes.number),
 //         'string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js List.'
+//         '`testComponent`, expected a Mori.list.'
 //       )
 //       fail(
 //         PropTypes.listOf(React.PropTypes.number),
 //         [1, 2, 3],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js List.'
+//         '`testComponent`, expected a Mori.list.'
 //       )
 //     })
 //
 //     it('should not warn when passing an empty array', function() {
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.List())
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.List([]))
+//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.list())
+//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.list([]))
 //     })
 //
 //     it('should be implicitly optional and not warn without values', function() {
@@ -474,25 +365,25 @@ describe('MoriPropTypes', () => {
 //         PropTypes.stackOf(React.PropTypes.number),
 //         {'0': 'maybe-array', length: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Stack.'
+//         '`testComponent`, expected a Mori.Stack.'
 //       )
 //       fail(
 //         PropTypes.stackOf(React.PropTypes.number),
 //         123,
 //         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Stack.'
+//         '`testComponent`, expected a Mori.Stack.'
 //       )
 //       fail(
 //         PropTypes.stackOf(React.PropTypes.number),
 //         'string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Stack.'
+//         '`testComponent`, expected a Mori.Stack.'
 //       )
 //       fail(
 //         PropTypes.stackOf(React.PropTypes.number),
 //         [1, 2, 3],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Stack.'
+//         '`testComponent`, expected a Mori.Stack.'
 //       )
 //     })
 //
@@ -571,25 +462,25 @@ describe('MoriPropTypes', () => {
 //         PropTypes.mapOf(React.PropTypes.number),
 //         {'0': 'maybe-array', length: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Map.'
+//         '`testComponent`, expected a Mori.Map.'
 //       )
 //       fail(
 //         PropTypes.mapOf(React.PropTypes.number),
 //         123,
 //         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Map.'
+//         '`testComponent`, expected a Mori.Map.'
 //       )
 //       fail(
 //         PropTypes.mapOf(React.PropTypes.number),
 //         'string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Map.'
+//         '`testComponent`, expected a Mori.Map.'
 //       )
 //       fail(
 //         PropTypes.mapOf(React.PropTypes.number),
 //         [1, 2, 3],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Map.'
+//         '`testComponent`, expected a Mori.Map.'
 //       )
 //     })
 //
@@ -668,31 +559,31 @@ describe('MoriPropTypes', () => {
 //         PropTypes.orderedMapOf(React.PropTypes.number),
 //         {'0': 'maybe-array', length: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedMap.'
+//         '`testComponent`, expected a Mori.OrderedMap.'
 //       )
 //       fail(
 //         PropTypes.orderedMapOf(React.PropTypes.number),
 //         123,
 //         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedMap.'
+//         '`testComponent`, expected a Mori.OrderedMap.'
 //       )
 //       fail(
 //         PropTypes.orderedMapOf(React.PropTypes.number),
 //         'string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedMap.'
+//         '`testComponent`, expected a Mori.OrderedMap.'
 //       )
 //       fail(
 //         PropTypes.orderedMapOf(React.PropTypes.number),
 //         [1, 2, 3],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedMap.'
+//         '`testComponent`, expected a Mori.OrderedMap.'
 //       )
 //       fail(
 //         PropTypes.orderedMapOf(React.PropTypes.number),
 //         Immutable.fromJS({a: 1, b: 2 }),
 //         'Invalid prop `testProp` of type `Immutable.Map` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedMap.'
+//         '`testComponent`, expected a Mori.OrderedMap.'
 //       )
 //     })
 //
@@ -766,25 +657,25 @@ describe('MoriPropTypes', () => {
 //         PropTypes.setOf(React.PropTypes.number),
 //         {'0': 'maybe-array', length: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Set.'
+//         '`testComponent`, expected a Mori.Set.'
 //       )
 //       fail(
 //         PropTypes.setOf(React.PropTypes.number),
 //         123,
 //         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Set.'
+//         '`testComponent`, expected a Mori.Set.'
 //       )
 //       fail(
 //         PropTypes.setOf(React.PropTypes.number),
 //         'string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Set.'
+//         '`testComponent`, expected a Mori.Set.'
 //       )
 //       fail(
 //         PropTypes.setOf(React.PropTypes.number),
 //         [1, 2, 3],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Set.'
+//         '`testComponent`, expected a Mori.Set.'
 //       )
 //     })
 //
@@ -858,37 +749,37 @@ describe('MoriPropTypes', () => {
 //         PropTypes.orderedSetOf(React.PropTypes.number),
 //         {'0': 'maybe-array', length: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedSet.'
+//         '`testComponent`, expected a Mori.OrderedSet.'
 //       )
 //       fail(
 //         PropTypes.orderedSetOf(React.PropTypes.number),
 //         123,
 //         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedSet.'
+//         '`testComponent`, expected a Mori.OrderedSet.'
 //       )
 //       fail(
 //         PropTypes.orderedSetOf(React.PropTypes.number),
 //         'string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedSet.'
+//         '`testComponent`, expected a Mori.OrderedSet.'
 //       )
 //       fail(
 //         PropTypes.orderedSetOf(React.PropTypes.number),
 //         [1, 2, 3],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedSet.'
+//         '`testComponent`, expected a Mori.OrderedSet.'
 //       )
 //       fail(
 //         PropTypes.orderedSetOf(React.PropTypes.number),
-//         Immutable.List([1, 2, 3]),
-//         'Invalid prop `testProp` of type `Immutable.List` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedSet.'
+//         Immutable.list([1, 2, 3]),
+//         'Invalid prop `testProp` of type `Immutable.list` supplied to ' +
+//         '`testComponent`, expected a Mori.OrderedSet.'
 //       )
 //       fail(
 //         PropTypes.orderedSetOf(React.PropTypes.number),
 //         Immutable.Set([1, 2, 3]),
 //         'Invalid prop `testProp` of type `Immutable.Set` supplied to ' +
-//         '`testComponent`, expected an Immutable.js OrderedSet.'
+//         '`testComponent`, expected a Mori.OrderedSet.'
 //       )
 //     })
 //
@@ -918,9 +809,9 @@ describe('MoriPropTypes', () => {
 //
 //   describe('IterableOf Type', function() {
 //     it('should support the iterableOf propTypes', function() {
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.List([1, 2, 3]))
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.string), Immutable.List(['a', 'b', 'c']))
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.List(['a', 'b']))
+//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.list([1, 2, 3]))
+//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.string), Immutable.list(['a', 'b', 'c']))
+//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.list(['a', 'b']))
 //
 //       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.Map({1: 1, 2: 2, 3: 3}))
 //       typeCheckPass(PropTypes.iterableOf(React.PropTypes.string), Immutable.Map({1: 'a', 2: 'b', 3: 'c'}))
@@ -932,7 +823,7 @@ describe('MoriPropTypes', () => {
 //
 //       typeCheckPass(
 //         PropTypes.iterableOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.List([{a: 1}, {a: 2}])
+//         Immutable.list([{a: 1}, {a: 2}])
 //       )
 //
 //       typeCheckPass(
@@ -942,7 +833,7 @@ describe('MoriPropTypes', () => {
 //
 //       typeCheckPass(
 //         PropTypes.iterableOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.List([new Thing(), new Thing()])
+//         Immutable.list([new Thing(), new Thing()])
 //       )
 //
 //       typeCheckPass(
@@ -964,7 +855,7 @@ describe('MoriPropTypes', () => {
 //     it('should warn with invalid items in the list', function() {
 //       fail(
 //         PropTypes.iterableOf(React.PropTypes.number),
-//         Immutable.List([1, 2, 'b']),
+//         Immutable.list([1, 2, 'b']),
 //         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
 //         'expected `number`.'
 //       )
@@ -983,7 +874,7 @@ describe('MoriPropTypes', () => {
 //
 //       fail(
 //         PropTypes.iterableOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.List([new Thing(), 'xyz']),
+//         Immutable.list([new Thing(), 'xyz']),
 //         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
 //         name + '`.'
 //       )
@@ -1001,31 +892,31 @@ describe('MoriPropTypes', () => {
 //         PropTypes.iterableOf(React.PropTypes.number),
 //         {'0': 'maybe-array', length: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //       fail(
 //         PropTypes.iterableOf(React.PropTypes.number),
 //         123,
 //         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //       fail(
 //         PropTypes.iterableOf(React.PropTypes.number),
 //         'string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //       fail(
 //         PropTypes.iterableOf(React.PropTypes.number),
 //         [1, 2, 3],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //     })
 //
 //     it('should not warn when passing an empty iterable', function() {
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.List())
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.List([]))
+//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.list())
+//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.list([]))
 //       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.Map({}))
 //     })
 //
@@ -1054,25 +945,25 @@ describe('MoriPropTypes', () => {
 //         PropTypes.recordOf({}),
 //         'some string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Record.'
+//         '`testComponent`, expected a Mori.Record.'
 //       )
 //       fail(
 //         PropTypes.recordOf({}),
 //         ['array'],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Record.'
+//         '`testComponent`, expected a Mori.Record.'
 //       )
 //       fail(
 //         PropTypes.recordOf({}),
 //         {a: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Record.'
+//         '`testComponent`, expected a Mori.Record.'
 //       )
 //       fail(
 //         PropTypes.recordOf({}),
 //         Immutable.Map({ a: 1 }),
 //         'Invalid prop `testProp` of type `Immutable.Map` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Record.'
+//         '`testComponent`, expected a Mori.Record.'
 //       )
 //     })
 //
@@ -1153,19 +1044,19 @@ describe('MoriPropTypes', () => {
 //         PropTypes.shape({}),
 //         'some string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //       fail(
 //         PropTypes.shape({}),
 //         ['array'],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //       fail(
 //         PropTypes.shape({}),
 //         {a: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //     })
 //
@@ -1246,7 +1137,7 @@ describe('MoriPropTypes', () => {
 //         1: React.PropTypes.string.isRequired,
 //         2: React.PropTypes.string
 //       }
-//       typeCheckPass(PropTypes.shape(shape), Immutable.List([1, '2']))
+//       typeCheckPass(PropTypes.shape(shape), Immutable.list([1, '2']))
 //     })
 //   })
 //
@@ -1256,19 +1147,19 @@ describe('MoriPropTypes', () => {
 //         PropTypes.contains({}),
 //         'some string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //       fail(
 //         PropTypes.contains({}),
 //         ['array'],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //       fail(
 //         PropTypes.contains({}),
 //         {a: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Iterable.'
+//         '`testComponent`, expected a Mori.Iterable.'
 //       )
 //     })
 //
@@ -1349,7 +1240,7 @@ describe('MoriPropTypes', () => {
 //         1: React.PropTypes.string.isRequired,
 //         2: React.PropTypes.string
 //       }
-//       typeCheckPass(PropTypes.contains(contains), Immutable.List([1, '2']))
+//       typeCheckPass(PropTypes.contains(contains), Immutable.list([1, '2']))
 //     })
 //   })
 //
@@ -1359,19 +1250,19 @@ describe('MoriPropTypes', () => {
 //         PropTypes.mapContains({}),
 //         'some string',
 //         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Map.'
+//         '`testComponent`, expected a Mori.Map.'
 //       )
 //       fail(
 //         PropTypes.mapContains({}),
 //         ['array'],
 //         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Map.'
+//         '`testComponent`, expected a Mori.Map.'
 //       )
 //       fail(
 //         PropTypes.mapContains({}),
 //         {a: 1},
 //         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected an Immutable.js Map.'
+//         '`testComponent`, expected a Mori.Map.'
 //       )
 //     })
 //
@@ -1477,8 +1368,8 @@ describe('MoriPropTypes', () => {
 //       }
 //       fail(
 //         PropTypes.mapContains(contains),
-//         Immutable.List([1, '2']),
-//         'Invalid prop `testProp` of type `Immutable.List` supplied to `testComponent`, expected an Immutable.js Map.'
+//         Immutable.list([1, '2']),
+//         'Invalid prop `testProp` of type `Immutable.list` supplied to `testComponent`, expected a Mori.Map.'
 //       )
 //     })
 //   })

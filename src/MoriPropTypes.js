@@ -11,6 +11,10 @@ import mori from 'mori'
 const ANONYMOUS = '<<anonymous>>'
 
 const typeCheckCreator = (type) => (value) => {
+  if (!type || !value) {
+    return false
+  }
+
   return Object.getPrototypeOf(value) === Object.getPrototypeOf(type)
 }
 
@@ -24,6 +28,8 @@ const isSortedSet = typeCheckCreator(mori.sortedSet())
 
 const getPropType = (propValue) => {
   const propType = typeof propValue
+
+  console.log('getPropType:', propType)
 
   if (Array.isArray(propValue)) {
     return 'array'
@@ -76,15 +82,8 @@ const getPropType = (propValue) => {
 }
 
 const createChainableTypeChecker = (validate) => {
-  const checkType = (
-    isRequired,
-    props,
-    propName,
-    componentName,
-    location,
-    propFullName
-  ) => {
-    if (props[propName] === null) {
+  const checkType = (isRequired, props, propName, componentName, location, propFullName) => {
+    if (props[propName] === null || props[propName] === undefined) {
       if (isRequired) {
         return new Error(
           `Required ${location} \`${propFullName || propName}\` was not ` +
@@ -102,25 +101,27 @@ const createChainableTypeChecker = (validate) => {
   return chainedCheckType
 }
 
-const createMoriTypeChecker = (moriClassName, moriClassTypeValidator) => {
+const createMoriTypeChecker = (moriClassName, moriTypeValidator) => {
   const validate = (props, propName, componentName, location, propFullName) => {
     const propValue = props[propName]
 
-    if (!moriClassTypeValidator(propValue)) {
+    if (!moriTypeValidator(propValue)) {
       const propType = getPropType(propValue)
 
       return new Error(
-        `Invalid ${location} \`${propFullName || propName}\` of type \`${propType}\` ` +
-        `supplied to \`${componentName}\`, expected \`Mori.${moriClassName}\`.`
+        `Invalid ${location} \`${propFullName || propName}\` of type ` +
+        `\`${propType}\` supplied to \`${componentName}\`, ` +
+        `expected a \`Mori.${moriClassName}\`.`
       )
     }
 
     return null
   }
+
   return createChainableTypeChecker(validate)
 }
 
-const createCollectionTypeChecker = (typeChecker, moriClassName, moriClassTypeValidator) => {
+const createCollectionTypeChecker = (typeChecker, moriClassName, moriTypeValidator) => {
   const validate = (props, propName, componentName, location, propFullName) => {
     const propValue = props[propName]
 
@@ -131,24 +132,25 @@ const createCollectionTypeChecker = (typeChecker, moriClassName, moriClassTypeVa
       )
     }
 
-    if (!moriClassTypeValidator(propValue)) {
+    if (!moriTypeValidator(propValue)) {
       const propType = getPropType(propValue)
 
       return new Error(
-        `Invalid ${location} \`${propFullName}\` of type ` +
+        `Invalid ${location} \`${propFullName || propName}\` of type ` +
         `\`${propType}\` supplied to \`${componentName}\`, ` +
-        `expected an Immutable.js ${moriClassName}.`
+        `expected a \`Mori.${moriClassName}\`.`
       )
     }
 
-    const propValues = propValue.toArray()
+    const propValues = mori.toJs(propValue)
     for (let i = 0, len = propValues.length; i < len; i++) {
-      const error = typeChecker(propValues, i, componentName, location, `${propFullName}[${i}]`)
+      const error = typeChecker(propValues, i, componentName, location, `${propFullName || propName}[${i}]`)
       if (error instanceof Error) {
         return error
       }
     }
   }
+
   return createChainableTypeChecker(validate)
 }
 
@@ -172,11 +174,16 @@ export const sortedSet = createMoriTypeChecker('sortedSet', isSortedSet)
 
 export const vec = createMoriTypeChecker('vec', mori.isVector)
 
+export const listOf = (typeChecker) => {
+  return createCollectionTypeChecker(typeChecker, 'list', mori.isList)
+}
+
 export const vecOf = (typeChecker) => {
   return createCollectionTypeChecker(typeChecker, 'vec', mori.isVector)
 }
 
 export default {
+  // primitives
   coll,
   list,
   map,
@@ -187,5 +194,8 @@ export default {
   sortedMap,
   sortedSet,
   vec,
+
+  // collections
+  listOf,
   vecOf,
 }
