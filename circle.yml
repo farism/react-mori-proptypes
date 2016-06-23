@@ -1,0 +1,12 @@
+machine:
+  node:
+    version: 5.0.0
+dependencies:
+    override:
+      - rm -rf node_modules
+      - npm install
+deployment:
+  production:
+    branch: master
+    commands:
+      - npm run build

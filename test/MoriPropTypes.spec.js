@@ -94,8 +94,12 @@ describe('MoriPropTypes', () => {
     failAll(PropTypes.list, 'Mori.list', ['Mori.list'])
   })
 
-  it('should warn for invalid vector', () => {
-    failAll(PropTypes.vec, 'Mori.vec', ['Mori.vec'])
+  it('should warn for invalid queue', () => {
+    failAll(PropTypes.queue, 'Mori.queue', ['Mori.queue'])
+  })
+
+  it('should warn for invalid range', () => {
+    failAll(PropTypes.range, 'Mori.range', ['Mori.range'])
   })
 
   it('should warn for invalid sortedMap', () => {
@@ -106,12 +110,8 @@ describe('MoriPropTypes', () => {
     failAll(PropTypes.sortedSet, 'Mori.sortedSet', ['Mori.sortedSet'])
   })
 
-  it('should warn for invalid queue', () => {
-    failAll(PropTypes.queue, 'Mori.queue', ['Mori.queue'])
-  })
-
-  it('should warn for invalid range', () => {
-    failAll(PropTypes.range, 'Mori.range', ['Mori.range'])
+  it('should warn for invalid vector', () => {
+    failAll(PropTypes.vec, 'Mori.vec', ['Mori.vec'])
   })
 })
 
