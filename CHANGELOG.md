@@ -1,3 +1,8 @@
+## 0.0.4
+  - remove rangeOf (since they can only be numeric)
+  - add more type validators (contains)
+  - add more specs
+
 ## 0.0.3
   - add collection validators (listOf, mapOf, queueOf, rangeOf, sortedMapOf, sortedSetOf, setOf, vecOf)
   - add more specs
