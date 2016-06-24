@@ -195,10 +195,6 @@ export const queueOf = (typeChecker) => {
   return createCollectionTypeChecker(typeChecker, 'queue', isQueue)
 }
 
-export const rangeOf = (typeChecker) => {
-  return createCollectionTypeChecker(typeChecker, 'range', isRange)
-}
-
 export const setOf = (typeChecker) => {
   return createCollectionTypeChecker(typeChecker, 'set', mori.isSet)
 }
@@ -232,7 +228,6 @@ export default {
   listOf,
   mapOf,
   queueOf,
-  rangeOf,
   setOf,
   sortedMapOf,
   sortedSetOf,

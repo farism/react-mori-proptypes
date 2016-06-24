@@ -57,18 +57,12 @@ MoriPropTypes.vec          // mori.isVec
 ```
 MoriPropTypes.listOf         // based on React.PropTypes.arrayOf
 MoriPropTypes.mapOf          // similar to MoriPropTypes.vecOf, but specific to maps
-MoriPropTypes.rangeOf        // similar to MoriPropTypes.vecOf, but specific to ranges
 MoriPropTypes.queueOf        // similar to MoriPropTypes.vecOf, but specific to queues
 MoriPropTypes.setOf          // similar to MoriPropTypes.vecOf, but specific to sets
 MoriPropTypes.sortedMap      // similar to MoriPropTypes.vecOf, but specific to sortedMaps
 MoriPropTypes.sortedSet      // similar to MoriPropTypes.vecOf, but specific to sortedSets
 MoriPropTypes.vecOf          // based on React.PropTypes.arrayOf
 ```
-
-
-#### Caveats
-
-Some of the `listOf` validators only make sense for certain data structures. A `mori.range`, for example, will only ever contain number types. It wouldn't make sense to create a `MoriPropTypes.rangeOf(React.PropTypes.object)` validator.
 
 #### Contributing
 
