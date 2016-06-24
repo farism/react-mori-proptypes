@@ -114,6 +114,10 @@ describe('MoriPropTypes', () => {
       failAll(PropTypes.range, 'Mori.range', ['Mori.range'])
     })
 
+    it('should warn for invalid set', () => {
+      failAll(PropTypes.set, 'Mori.set', ['Mori.set', 'Mori.sortedSet'])
+    })
+
     it('should warn for invalid sortedMap', () => {
       failAll(PropTypes.sortedMap, 'Mori.sortedMap', ['Mori.sortedMap'])
     })
@@ -249,7 +253,7 @@ describe('MoriPropTypes', () => {
     it('should warn with invalid items in the map', () => {
       fail(
         PropTypes.mapOf(React.PropTypes.number),
-        mori.hashMap('a', 1, 'b', 2, 'c', 'c'),
+        mori.hashMap(1, 1, 2, 2, 3, 'c'),
         'Invalid prop `testProp[2]` of type `string` ' +
         'supplied to `testComponent`, expected `number`.'
       )
@@ -261,6 +265,256 @@ describe('MoriPropTypes', () => {
         mori.hashMap(1, new Thing(), 2, 'foo'),
         'Invalid prop `testProp[1]` of type `String` ' +
         'supplied to `testComponent`, expected instance of `' + THING_NAME + '`.'
+      )
+    })
+  })
+
+  describe('queueOf Type', () => {
+    it('should support the queueOf propTypes', () => {
+      pass(PropTypes.queueOf(React.PropTypes.number), mori.queue(1, 2, 3))
+      pass(PropTypes.queueOf(React.PropTypes.string), mori.queue('a', 'b', 'c'))
+      pass(PropTypes.queueOf(React.PropTypes.oneOf(['a', 'b'])), mori.queue('a', 'b'))
+    })
+
+    it('should warn when passed something other than a Mori.queue', () => {
+      failAll(PropTypes.queueOf(React.PropTypes.number), 'Mori.queue', ['Mori.queue'])
+    })
+
+    it('should not warn when passing an empty queue', () => {
+      pass(PropTypes.queueOf(React.PropTypes.number), mori.queue())
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.queueOf(React.PropTypes.number).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.queueOf(React.PropTypes.number).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.queueOf(React.PropTypes.number), null)
+      pass(PropTypes.queueOf(React.PropTypes.number), undefined)
+    })
+
+    it('should support queueOf with complex types', () => {
+      pass(
+        PropTypes.queueOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.queue({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.queueOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.queue({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.queueOf(React.PropTypes.instanceOf(Thing)),
+        mori.queue(new Thing(), new Thing())
+      )
+    })
+
+    it('should warn with invalid items in the queue', () => {
+      fail(
+        PropTypes.queueOf(React.PropTypes.number),
+        mori.queue(1, 2, 'b'),
+        'Invalid prop `testProp[2]` of type `string` ' +
+        'supplied to `testComponent`, expected `number`.'
+      )
+    })
+
+    it('should warn with invalid complex types', () => {
+      fail(
+        PropTypes.queueOf(React.PropTypes.instanceOf(Thing)),
+        mori.queue(new Thing(), 'xyz'),
+        'Invalid prop `testProp[1]` of type `String` ' +
+        'supplied to `testComponent`, expected instance of `' + THING_NAME + '`.'
+      )
+    })
+  })
+
+  describe('rangeOf Type', () => {
+    it('should support the rangeOf propTypes', () => {
+      pass(PropTypes.rangeOf(React.PropTypes.number), mori.range(10))
+    })
+
+    it('should warn when passed something other than a Mori.range', () => {
+      failAll(PropTypes.rangeOf(React.PropTypes.number), 'Mori.range', ['Mori.range'])
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.rangeOf(React.PropTypes.number).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.rangeOf(React.PropTypes.number).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.rangeOf(React.PropTypes.number), null)
+      pass(PropTypes.rangeOf(React.PropTypes.number), undefined)
+    })
+  })
+
+  describe('setOf Type', () => {
+    it('should support the setOf propTypes', () => {
+      pass(PropTypes.setOf(React.PropTypes.string), mori.set('a', 'b', 'c'))
+      pass(PropTypes.setOf(React.PropTypes.oneOf(['a', 'b'])), mori.set('a', 'b'))
+    })
+
+    it('should warn when passed something other than a Mori.set', () => {
+      failAll(PropTypes.setOf(React.PropTypes.number), 'Mori.set', ['Mori.set', 'Mori.sortedSet'])
+    })
+
+    it('should not warn when passing an empty set', () => {
+      pass(PropTypes.setOf(React.PropTypes.number), mori.set())
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.setOf(React.PropTypes.number).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.setOf(React.PropTypes.number).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.setOf(React.PropTypes.number), null)
+      pass(PropTypes.setOf(React.PropTypes.number), undefined)
+    })
+  })
+
+  describe('sortedMapOf Type', () => {
+    it('should support the sortedMapOf propTypes', () => {
+      pass(PropTypes.sortedMapOf(React.PropTypes.number), mori.sortedMap(1, 2, 3))
+      pass(PropTypes.sortedMapOf(React.PropTypes.string), mori.sortedMap('a', 'b', 'c'))
+      pass(PropTypes.sortedMapOf(React.PropTypes.oneOf(['a', 'b'])), mori.sortedMap('a', 'b'))
+    })
+
+    it('should warn when passed something other than a Mori.sortedMap', () => {
+      failAll(PropTypes.sortedMapOf(React.PropTypes.number), 'Mori.sortedMap', ['Mori.sortedMap'])
+    })
+
+    it('should not warn when passing an empty sortedMap', () => {
+      pass(PropTypes.sortedMapOf(React.PropTypes.number), mori.sortedMap())
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.sortedMapOf(React.PropTypes.number).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.sortedMapOf(React.PropTypes.number).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.sortedMapOf(React.PropTypes.number), null)
+      pass(PropTypes.sortedMapOf(React.PropTypes.number), undefined)
+    })
+
+    it('should support sortedMapOf with complex types', () => {
+      pass(
+        PropTypes.sortedMapOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.sortedMap({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.sortedMapOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.sortedMap({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.sortedMapOf(React.PropTypes.instanceOf(Thing)),
+        mori.sortedMap(new Thing(), new Thing())
+      )
+    })
+
+    it('should warn with invalid items in the sortedMap', () => {
+      fail(
+        PropTypes.sortedMapOf(React.PropTypes.number),
+        mori.sortedMap(1, 1, 2, 2, 3, 'c'),
+        'Invalid prop `testProp[2]` of type `string` ' +
+        'supplied to `testComponent`, expected `number`.'
+      )
+    })
+
+    it('should warn with invalid complex types', () => {
+      fail(
+        PropTypes.sortedMapOf(React.PropTypes.instanceOf(Thing)),
+        mori.sortedMap(1, new Thing(), 2, 'foo'),
+        'Invalid prop `testProp[1]` of type `String` ' +
+        'supplied to `testComponent`, expected instance of `' + THING_NAME + '`.'
+      )
+    })
+  })
+
+  describe('sortedSetOf Type', () => {
+    it('should support the sortedSetOf propTypes', () => {
+      pass(PropTypes.sortedSetOf(React.PropTypes.number), mori.sortedSet(1, 2, 3))
+      pass(PropTypes.sortedSetOf(React.PropTypes.string), mori.sortedSet('a', 'b', 'c'))
+      pass(PropTypes.sortedSetOf(React.PropTypes.oneOf(['a', 'b'])), mori.sortedSet('a', 'b'))
+    })
+
+    it('should warn when passed something other than a Mori.sortedSet', () => {
+      failAll(PropTypes.sortedSetOf(React.PropTypes.number), 'Mori.sortedSet', ['Mori.sortedSet'])
+    })
+
+    it('should not warn when passing an empty sortedSet', () => {
+      pass(PropTypes.sortedSetOf(React.PropTypes.number), mori.sortedSet())
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.sortedSetOf(React.PropTypes.number).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.sortedSetOf(React.PropTypes.number).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.sortedSetOf(React.PropTypes.number), null)
+      pass(PropTypes.sortedSetOf(React.PropTypes.number), undefined)
+    })
+
+    it('should support sortedSetOf with complex types', () => {
+      pass(
+        PropTypes.sortedSetOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.sortedSet({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.sortedSetOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.sortedSet({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.sortedSetOf(React.PropTypes.instanceOf(Thing)),
+        mori.sortedSet(new Thing(), new Thing())
       )
     })
   })
@@ -335,602 +589,6 @@ describe('MoriPropTypes', () => {
   })
 })
 
-
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(PropTypes.list, null)
-//       typeCheckPass(PropTypes.list, undefined)
-//     })
-//     it('should warn for missing required values', function() {
-//       fail(PropTypes.list.isRequired, null, requiredMessage)
-//       fail(PropTypes.list.isRequired, undefined, requiredMessage)
-//     })
-//   })
-//
-//   describe('listOf Type', function() {
-//     it('should support the listOf propTypes', function() {
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.list([1, 2, 3]))
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.string), Immutable.list(['a', 'b', 'c']))
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.list(['a', 'b']))
-//     })
-//
-//     it('should support listOf with complex types', function() {
-//       typeCheckPass(
-//         PropTypes.listOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.list([{a: 1}, {a: 2}])
-//       )
-//
-//       typeCheckPass(
-//         PropTypes.listOf(PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.fromJS([{a: 1}, {a: 2}])
-//       )
-//
-//       function Thing() {}
-//       typeCheckPass(
-//         PropTypes.listOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.list([new Thing(), new Thing()])
-//       )
-//     })
-//
-//     it('should warn with invalid items in the list', function() {
-//       fail(
-//         PropTypes.listOf(React.PropTypes.number),
-//         Immutable.list([1, 2, 'b']),
-//         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should warn with invalid complex types', function() {
-//       function Thing() {}
-//       var name = Thing.name || '<<anonymous>>'
-//
-//       fail(
-//         PropTypes.listOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.list([new Thing(), 'xyz']),
-//         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
-//         name + '`.'
-//       )
-//     })
-//
-//     it('should warn when passed something other than an Immutable.list', function() {
-//       fail(
-//         PropTypes.listOf(React.PropTypes.number),
-//         {'0': 'maybe-array', length: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.list.'
-//       )
-//       fail(
-//         PropTypes.listOf(React.PropTypes.number),
-//         123,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected a Mori.list.'
-//       )
-//       fail(
-//         PropTypes.listOf(React.PropTypes.number),
-//         'string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.list.'
-//       )
-//       fail(
-//         PropTypes.listOf(React.PropTypes.number),
-//         [1, 2, 3],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.list.'
-//       )
-//     })
-//
-//     it('should not warn when passing an empty array', function() {
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.list())
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), Immutable.list([]))
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), null)
-//       typeCheckPass(PropTypes.listOf(React.PropTypes.number), undefined)
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.listOf(React.PropTypes.number).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.listOf(React.PropTypes.number).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//   })
-//
-//   describe('StackOf Type', function() {
-//     it('should support the stackOf propTypes', function() {
-//       typeCheckPass(PropTypes.stackOf(React.PropTypes.number), Immutable.Stack([1, 2, 3]))
-//       typeCheckPass(PropTypes.stackOf(React.PropTypes.string), Immutable.Stack(['a', 'b', 'c']))
-//       typeCheckPass(PropTypes.stackOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.Stack(['a', 'b']))
-//     })
-//
-//     it('should support stackOf with complex types', function() {
-//       typeCheckPass(
-//         PropTypes.stackOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.Stack([{a: 1}, {a: 2}])
-//       )
-//
-//       function Thing() {}
-//       typeCheckPass(
-//         PropTypes.stackOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.Stack([new Thing(), new Thing()])
-//       )
-//     })
-//
-//     it('should warn with invalid items in the list', function() {
-//       fail(
-//         PropTypes.stackOf(React.PropTypes.number),
-//         Immutable.Stack([1, 2, 'b']),
-//         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should warn with invalid complex types', function() {
-//       function Thing() {}
-//       var name = Thing.name || '<<anonymous>>'
-//
-//       fail(
-//         PropTypes.stackOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.Stack([new Thing(), 'xyz']),
-//         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
-//         name + '`.'
-//       )
-//     })
-//
-//     it('should warn when passed something other than an Immutable.Stack', function() {
-//       fail(
-//         PropTypes.stackOf(React.PropTypes.number),
-//         {'0': 'maybe-array', length: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.Stack.'
-//       )
-//       fail(
-//         PropTypes.stackOf(React.PropTypes.number),
-//         123,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected a Mori.Stack.'
-//       )
-//       fail(
-//         PropTypes.stackOf(React.PropTypes.number),
-//         'string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.Stack.'
-//       )
-//       fail(
-//         PropTypes.stackOf(React.PropTypes.number),
-//         [1, 2, 3],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.Stack.'
-//       )
-//     })
-//
-//     it('should not warn when passing an empty array', function() {
-//       typeCheckPass(PropTypes.stackOf(React.PropTypes.number), Immutable.Stack())
-//       typeCheckPass(PropTypes.stackOf(React.PropTypes.number), Immutable.Stack([]))
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(PropTypes.stackOf(React.PropTypes.number), null)
-//       typeCheckPass(PropTypes.stackOf(React.PropTypes.number), undefined)
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.stackOf(React.PropTypes.number).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.stackOf(React.PropTypes.number).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//   })
-//
-//   describe('MapOf Type', function() {
-//     it('should support the mapOf propTypes', function() {
-//       typeCheckPass(PropTypes.mapOf(React.PropTypes.number), Immutable.Map({1: 1, 2: 2, 3: 3}))
-//       typeCheckPass(PropTypes.mapOf(React.PropTypes.string), Immutable.Map({1: 'a', 2: 'b', 3: 'c'}))
-//       typeCheckPass(PropTypes.mapOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.Map({1: 'a', 2: 'b'}))
-//     })
-//
-//     it('should support mapOf with complex types', function() {
-//       typeCheckPass(
-//         PropTypes.mapOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.Map({1: {a: 1}, 2: {a: 2}})
-//       )
-//
-//       typeCheckPass(
-//         PropTypes.mapOf(PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.fromJS({1: {a: 1}, 2: {a: 2}})
-//       )
-//
-//       function Thing() {}
-//       typeCheckPass(
-//         PropTypes.mapOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.Map({ 1: new Thing(), 2: new Thing() })
-//       )
-//     })
-//
-//     it('should warn with invalid items in the map', function() {
-//       fail(
-//         PropTypes.mapOf(React.PropTypes.number),
-//         Immutable.Map({ 1: 1, 2: 2, 3: 'b' }),
-//         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should warn with invalid complex types', function() {
-//       function Thing() {}
-//       var name = Thing.name || '<<anonymous>>'
-//
-//       fail(
-//         PropTypes.mapOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.Map({ 1: new Thing(), 2: 'xyz' }),
-//         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
-//         name + '`.'
-//       )
-//     })
-//
-//     it('should warn when passed something other than an Immutable.Map', function() {
-//       fail(
-//         PropTypes.mapOf(React.PropTypes.number),
-//         {'0': 'maybe-array', length: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.Map.'
-//       )
-//       fail(
-//         PropTypes.mapOf(React.PropTypes.number),
-//         123,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected a Mori.Map.'
-//       )
-//       fail(
-//         PropTypes.mapOf(React.PropTypes.number),
-//         'string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.Map.'
-//       )
-//       fail(
-//         PropTypes.mapOf(React.PropTypes.number),
-//         [1, 2, 3],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.Map.'
-//       )
-//     })
-//
-//     it('should not warn when passing an empty object', function() {
-//       typeCheckPass(PropTypes.mapOf(React.PropTypes.number), Immutable.Map())
-//       typeCheckPass(PropTypes.mapOf(React.PropTypes.number), Immutable.Map({}))
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(PropTypes.mapOf(React.PropTypes.number), null)
-//       typeCheckPass(PropTypes.mapOf(React.PropTypes.number), undefined)
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.mapOf(React.PropTypes.number).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.mapOf(React.PropTypes.number).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//   })
-//
-//   describe('OrderedMapOf Type', function() {
-//     it('should support the orderedMapOf propTypes', function() {
-//       typeCheckPass(PropTypes.orderedMapOf(React.PropTypes.number), Immutable.OrderedMap({1: 1, 2: 2, 3: 3}))
-//       typeCheckPass(PropTypes.orderedMapOf(React.PropTypes.string), Immutable.OrderedMap({1: 'a', 2: 'b', 3: 'c'}))
-//       typeCheckPass(PropTypes.orderedMapOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.OrderedMap({1: 'a', 2: 'b'}))
-//     })
-//
-//     it('should support orderedMapOf with complex types', function() {
-//       typeCheckPass(
-//         PropTypes.orderedMapOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.OrderedMap({1: {a: 1}, 2: {a: 2}})
-//       )
-//
-//       typeCheckPass(
-//         PropTypes.orderedMapOf(PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.fromJS({1: {a: 1}, 2: {a: 2}}).toOrderedMap()
-//       )
-//
-//       function Thing() {}
-//       typeCheckPass(
-//         PropTypes.orderedMapOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.OrderedMap({ 1: new Thing(), 2: new Thing() })
-//       )
-//     })
-//
-//     it('should warn with invalid items in the map', function() {
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.number),
-//         Immutable.OrderedMap({ 1: 1, 2: 2, 3: 'b' }),
-//         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should warn with invalid complex types', function() {
-//       function Thing() {}
-//       var name = Thing.name || '<<anonymous>>'
-//
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.OrderedMap({ 1: new Thing(), 2: 'xyz' }),
-//         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
-//         name + '`.'
-//       )
-//     })
-//
-//     it('should warn when passed something other than an Immutable.OrderedMap', function() {
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.number),
-//         {'0': 'maybe-array', length: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedMap.'
-//       )
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.number),
-//         123,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedMap.'
-//       )
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.number),
-//         'string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedMap.'
-//       )
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.number),
-//         [1, 2, 3],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedMap.'
-//       )
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.number),
-//         Immutable.fromJS({a: 1, b: 2 }),
-//         'Invalid prop `testProp` of type `Immutable.Map` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedMap.'
-//       )
-//     })
-//
-//     it('should not warn when passing an empty object', function() {
-//       typeCheckPass(PropTypes.orderedMapOf(React.PropTypes.number), Immutable.OrderedMap())
-//       typeCheckPass(PropTypes.orderedMapOf(React.PropTypes.number), Immutable.OrderedMap({}))
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(PropTypes.orderedMapOf(React.PropTypes.number), null)
-//       typeCheckPass(PropTypes.orderedMapOf(React.PropTypes.number), undefined)
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.number).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.orderedMapOf(React.PropTypes.number).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//   })
-//
-//   describe('SetOf Type', function() {
-//     it('should support the setOf propTypes', function() {
-//       typeCheckPass(PropTypes.setOf(React.PropTypes.number), Immutable.Set([1, 2, 3]))
-//       typeCheckPass(PropTypes.setOf(React.PropTypes.string), Immutable.Set(['a', 'b', 'c']))
-//       typeCheckPass(PropTypes.setOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.Set(['a', 'b']))
-//     })
-//
-//     it('should support setOf with complex types', function() {
-//       typeCheckPass(
-//         PropTypes.setOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.Set([{a: 1}, {a: 2}])
-//       )
-//
-//       function Thing() {}
-//       typeCheckPass(
-//         PropTypes.setOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.Set([new Thing(), new Thing() ])
-//       )
-//     })
-//
-//     it('should warn with invalid items in the set', function() {
-//       fail(
-//         PropTypes.setOf(React.PropTypes.number),
-//         Immutable.Set([1, 2, 'b']),
-//         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should warn with invalid complex types', function() {
-//       function Thing() {}
-//       var name = Thing.name || '<<anonymous>>'
-//
-//       fail(
-//         PropTypes.setOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.Set([new Thing(), 'xyz' ]),
-//         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
-//         name + '`.'
-//       )
-//     })
-//
-//     it('should warn when passed something other than an Immutable.Set', function() {
-//       fail(
-//         PropTypes.setOf(React.PropTypes.number),
-//         {'0': 'maybe-array', length: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.Set.'
-//       )
-//       fail(
-//         PropTypes.setOf(React.PropTypes.number),
-//         123,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected a Mori.Set.'
-//       )
-//       fail(
-//         PropTypes.setOf(React.PropTypes.number),
-//         'string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.Set.'
-//       )
-//       fail(
-//         PropTypes.setOf(React.PropTypes.number),
-//         [1, 2, 3],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.Set.'
-//       )
-//     })
-//
-//     it('should not warn when passing an empty object', function() {
-//       typeCheckPass(PropTypes.setOf(React.PropTypes.number), Immutable.Set())
-//       typeCheckPass(PropTypes.setOf(React.PropTypes.number), Immutable.Set([]))
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(PropTypes.setOf(React.PropTypes.number), null)
-//       typeCheckPass(PropTypes.setOf(React.PropTypes.number), undefined)
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.setOf(React.PropTypes.number).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.setOf(React.PropTypes.number).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//   })
-//
-//   describe('OrderedSetOf Type', function() {
-//     it('should support the orderedSetOf propTypes', function() {
-//       typeCheckPass(PropTypes.orderedSetOf(React.PropTypes.number), Immutable.OrderedSet([1, 2, 3]))
-//       typeCheckPass(PropTypes.orderedSetOf(React.PropTypes.string), Immutable.OrderedSet(['a', 'b', 'c']))
-//       typeCheckPass(PropTypes.orderedSetOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.OrderedSet(['a', 'b']))
-//     })
-//
-//     it('should support orderedSetOf with complex types', function() {
-//       typeCheckPass(
-//         PropTypes.orderedSetOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.OrderedSet([{a: 1}, {a: 2}])
-//       )
-//
-//       function Thing() {}
-//       typeCheckPass(
-//         PropTypes.orderedSetOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.OrderedSet([new Thing(), new Thing() ])
-//       )
-//     })
-//
-//     it('should warn with invalid items in the set', function() {
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number),
-//         Immutable.OrderedSet([1, 2, 'b']),
-//         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should warn with invalid complex types', function() {
-//       function Thing() {}
-//       var name = Thing.name || '<<anonymous>>'
-//
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.OrderedSet([new Thing(), 'xyz' ]),
-//         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
-//         name + '`.'
-//       )
-//     })
-//
-//     it('should warn when passed something other than an Immutable.OrderedSet', function() {
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number),
-//         {'0': 'maybe-array', length: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedSet.'
-//       )
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number),
-//         123,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedSet.'
-//       )
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number),
-//         'string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedSet.'
-//       )
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number),
-//         [1, 2, 3],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedSet.'
-//       )
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number),
-//         Immutable.list([1, 2, 3]),
-//         'Invalid prop `testProp` of type `Immutable.list` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedSet.'
-//       )
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number),
-//         Immutable.Set([1, 2, 3]),
-//         'Invalid prop `testProp` of type `Immutable.Set` supplied to ' +
-//         '`testComponent`, expected a Mori.OrderedSet.'
-//       )
-//     })
-//
-//     it('should not warn when passing an empty object', function() {
-//       typeCheckPass(PropTypes.orderedSetOf(React.PropTypes.number), Immutable.OrderedSet())
-//       typeCheckPass(PropTypes.orderedSetOf(React.PropTypes.number), Immutable.OrderedSet([]))
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(PropTypes.orderedSetOf(React.PropTypes.number), null)
-//       typeCheckPass(PropTypes.orderedSetOf(React.PropTypes.number), undefined)
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.orderedSetOf(React.PropTypes.number).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//   })
-//
 //   describe('IterableOf Type', function() {
 //     it('should support the iterableOf propTypes', function() {
 //       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.list([1, 2, 3]))

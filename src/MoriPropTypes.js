@@ -82,13 +82,12 @@ const getPropType = (propValue) => {
 const toArray = (propValue) => {
   const propType = getPropType(propValue)
 
-  if (propType === 'Mori.map') {
+  if (propType === 'Mori.map' || propType === 'Mori.sortedMap') {
     return mori.toJs(mori.vals(propValue))
   }
 
-  if (['Mori.list', 'Mori.vec'].indexOf(propType) >= 0) {
-    return mori.toJs(propValue)
-  }
+
+  return mori.toJs(propValue)
 }
 
 const createChainableTypeChecker = (validate) => {
@@ -192,6 +191,26 @@ export const mapOf = (typeChecker) => {
   return createCollectionTypeChecker(typeChecker, 'map', mori.isMap)
 }
 
+export const queueOf = (typeChecker) => {
+  return createCollectionTypeChecker(typeChecker, 'queue', isQueue)
+}
+
+export const rangeOf = (typeChecker) => {
+  return createCollectionTypeChecker(typeChecker, 'range', isRange)
+}
+
+export const setOf = (typeChecker) => {
+  return createCollectionTypeChecker(typeChecker, 'set', mori.isSet)
+}
+
+export const sortedMapOf = (typeChecker) => {
+  return createCollectionTypeChecker(typeChecker, 'sortedMap', isSortedMap)
+}
+
+export const sortedSetOf = (typeChecker) => {
+  return createCollectionTypeChecker(typeChecker, 'sortedSet', isSortedSet)
+}
+
 export const vecOf = (typeChecker) => {
   return createCollectionTypeChecker(typeChecker, 'vec', mori.isVector)
 }
@@ -212,5 +231,10 @@ export default {
   // collections
   listOf,
   mapOf,
+  queueOf,
+  rangeOf,
+  setOf,
+  sortedMapOf,
+  sortedSetOf,
   vecOf,
 }
