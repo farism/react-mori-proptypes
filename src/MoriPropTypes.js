@@ -29,8 +29,6 @@ const isSortedSet = typeCheckCreator(mori.sortedSet())
 const getPropType = (propValue) => {
   const propType = typeof propValue
 
-  console.log('getPropType:', propType)
-
   if (Array.isArray(propValue)) {
     return 'array'
   }
@@ -81,6 +79,18 @@ const getPropType = (propValue) => {
   return propType
 }
 
+const toArray = (propValue) => {
+  const propType = getPropType(propValue)
+
+  if (propType === 'Mori.map') {
+    return mori.toJs(mori.vals(propValue))
+  }
+
+  if (['Mori.list', 'Mori.vec'].indexOf(propType) >= 0) {
+    return mori.toJs(propValue)
+  }
+}
+
 const createChainableTypeChecker = (validate) => {
   const checkType = (isRequired, props, propName, componentName, location, propFullName) => {
     if (props[propName] === null || props[propName] === undefined) {
@@ -128,7 +138,7 @@ const createCollectionTypeChecker = (typeChecker, moriClassName, moriTypeValidat
     if (typeof typeChecker !== 'function') {
       return new Error(
         `Invalid typeChecker supplied to \`${componentName}\` ` +
-        `for propType \`${propFullName}\`, expected a function.`
+        `for propType \`${propFullName || propName}\`, expected a function.`
       )
     }
 
@@ -142,7 +152,7 @@ const createCollectionTypeChecker = (typeChecker, moriClassName, moriTypeValidat
       )
     }
 
-    const propValues = mori.toJs(propValue)
+    const propValues = toArray(propValue) || []
     for (let i = 0, len = propValues.length; i < len; i++) {
       const error = typeChecker(propValues, i, componentName, location, `${propFullName || propName}[${i}]`)
       if (error instanceof Error) {
@@ -178,6 +188,10 @@ export const listOf = (typeChecker) => {
   return createCollectionTypeChecker(typeChecker, 'list', mori.isList)
 }
 
+export const mapOf = (typeChecker) => {
+  return createCollectionTypeChecker(typeChecker, 'map', mori.isMap)
+}
+
 export const vecOf = (typeChecker) => {
   return createCollectionTypeChecker(typeChecker, 'vec', mori.isVector)
 }
@@ -197,5 +211,6 @@ export default {
 
   // collections
   listOf,
+  mapOf,
   vecOf,
 }

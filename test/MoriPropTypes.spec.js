@@ -5,6 +5,10 @@ import React from 'react'
 
 import PropTypes from '../src/MoriPropTypes'
 
+function Thing() {}
+
+const ANONYMOUS = '<<anonymous>>'
+const THING_NAME = Thing.name || ANONYMOUS
 const REQUIRED = 'Required prop `testProp` was not specified in `testComponent`.'
 const TEST_PROP = 'testProp'
 const TEST_COMPONENT = 'testComponent'
@@ -67,7 +71,16 @@ const failAll = (declaration, typeCheck, exclude) => {
 describe('MoriPropTypes', () => {
   describe('PropTypes config', () => {
     it('should fail if typeChecker is not a function', () => {
-
+      pass(
+        PropTypes.listOf(React.PropTypes.number),
+        mori.list(1, 2, 3)
+      )
+      fail(
+        PropTypes.listOf(123),
+        mori.list(1, 2, 3),
+        'Invalid typeChecker supplied to ' +
+        '`testComponent` for propType `testProp`, expected a function.'
+      )
     })
   })
 
@@ -84,34 +97,34 @@ describe('MoriPropTypes', () => {
       pass(PropTypes.sortedSet, mori.sortedSet())
       pass(PropTypes.vec, mori.vector())
     })
-  })
 
-  it('should warn for invalid hashMap', () => {
-    failAll(PropTypes.map, 'Mori.map', ['Mori.map', 'Mori.sortedMap'])
-  })
+    it('should warn for invalid hashMap', () => {
+      failAll(PropTypes.map, 'Mori.map', ['Mori.map', 'Mori.sortedMap'])
+    })
 
-  it('should warn for invalid list', () => {
-    failAll(PropTypes.list, 'Mori.list', ['Mori.list'])
-  })
+    it('should warn for invalid list', () => {
+      failAll(PropTypes.list, 'Mori.list', ['Mori.list'])
+    })
 
-  it('should warn for invalid queue', () => {
-    failAll(PropTypes.queue, 'Mori.queue', ['Mori.queue'])
-  })
+    it('should warn for invalid queue', () => {
+      failAll(PropTypes.queue, 'Mori.queue', ['Mori.queue'])
+    })
 
-  it('should warn for invalid range', () => {
-    failAll(PropTypes.range, 'Mori.range', ['Mori.range'])
-  })
+    it('should warn for invalid range', () => {
+      failAll(PropTypes.range, 'Mori.range', ['Mori.range'])
+    })
 
-  it('should warn for invalid sortedMap', () => {
-    failAll(PropTypes.sortedMap, 'Mori.sortedMap', ['Mori.sortedMap'])
-  })
+    it('should warn for invalid sortedMap', () => {
+      failAll(PropTypes.sortedMap, 'Mori.sortedMap', ['Mori.sortedMap'])
+    })
 
-  it('should warn for invalid sortedSet', () => {
-    failAll(PropTypes.sortedSet, 'Mori.sortedSet', ['Mori.sortedSet'])
-  })
+    it('should warn for invalid sortedSet', () => {
+      failAll(PropTypes.sortedSet, 'Mori.sortedSet', ['Mori.sortedSet'])
+    })
 
-  it('should warn for invalid vector', () => {
-    failAll(PropTypes.vec, 'Mori.vec', ['Mori.vec'])
+    it('should warn for invalid vector', () => {
+      failAll(PropTypes.vec, 'Mori.vec', ['Mori.vec'])
+    })
   })
 
   describe('listOf Type', () => {
@@ -119,6 +132,32 @@ describe('MoriPropTypes', () => {
       pass(PropTypes.listOf(React.PropTypes.number), mori.list(1, 2, 3))
       pass(PropTypes.listOf(React.PropTypes.string), mori.list('a', 'b', 'c'))
       pass(PropTypes.listOf(React.PropTypes.oneOf(['a', 'b'])), mori.list('a', 'b'))
+    })
+
+    it('should warn when passed something other than a Mori.list', () => {
+      failAll(PropTypes.listOf(React.PropTypes.number), 'Mori.list', ['Mori.list'])
+    })
+
+    it('should not warn when passing an empty list', () => {
+      pass(PropTypes.listOf(React.PropTypes.number), mori.list())
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.listOf(React.PropTypes.number).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.listOf(React.PropTypes.number).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.listOf(React.PropTypes.number), null)
+      pass(PropTypes.listOf(React.PropTypes.number), undefined)
     })
 
     it('should support listOf with complex types', () => {
@@ -132,7 +171,6 @@ describe('MoriPropTypes', () => {
         mori.list({ a: 1 }, { a: 2 })
       )
 
-      function Thing() {}
       pass(
         PropTypes.listOf(React.PropTypes.instanceOf(Thing)),
         mori.list(new Thing(), new Thing())
@@ -149,63 +187,149 @@ describe('MoriPropTypes', () => {
     })
 
     it('should warn with invalid complex types', () => {
-      function Thing() {}
-      const name = Thing.name || '<<anonymous>>'
-
       fail(
         PropTypes.listOf(React.PropTypes.instanceOf(Thing)),
         mori.list(new Thing(), 'xyz'),
         'Invalid prop `testProp[1]` of type `String` ' +
-        'supplied to `testComponent`, expected instance of `' + name + '`.'
+        'supplied to `testComponent`, expected instance of `' + THING_NAME + '`.'
       )
     })
+  })
 
-    it('should warn when passed something other than a Mori.list', () => {
-      fail(
-        PropTypes.listOf(React.PropTypes.number),
-        { 0: 'maybe-array', length: 1 },
-        'Invalid prop `testProp` of type `object` supplied to ' +
-        '`testComponent`, expected a `Mori.list`.'
-      )
-      fail(
-        PropTypes.listOf(React.PropTypes.number),
-        123,
-        'Invalid prop `testProp` of type `number` supplied to ' +
-        '`testComponent`, expected a `Mori.list`.'
-      )
-      fail(
-        PropTypes.listOf(React.PropTypes.number),
-        'string',
-        'Invalid prop `testProp` of type `string` supplied to ' +
-        '`testComponent`, expected a `Mori.list`.'
-      )
-      fail(
-        PropTypes.listOf(React.PropTypes.number),
-        [1, 2, 3],
-        'Invalid prop `testProp` of type `array` supplied to ' +
-        '`testComponent`, expected a `Mori.list`.'
-      )
+  describe('mapOf Type', () => {
+    it('should support the mapOf propTypes', () => {
+      pass(PropTypes.mapOf(React.PropTypes.number), mori.hashMap({ 1: 1, 2: 2, 3: 3 }))
+      pass(PropTypes.mapOf(React.PropTypes.string), mori.hashMap({ 1: 'a', 2: 'b', 3: 'c' }))
+      pass(PropTypes.mapOf(React.PropTypes.oneOf(['a', 'b'])), mori.hashMap({ a: 1, b: 2 }))
     })
 
-    it('should not warn when passing an empty list', () => {
-      pass(PropTypes.listOf(React.PropTypes.number), mori.list())
+    it('should warn when passed something other than a Mori.map', () => {
+      failAll(PropTypes.mapOf(React.PropTypes.number), 'Mori.map', ['Mori.map', 'Mori.sortedMap'])
     })
 
-    it('should be implicitly optional and not warn without values', () => {
-      pass(PropTypes.listOf(React.PropTypes.number), null)
-      pass(PropTypes.listOf(React.PropTypes.number), undefined)
+    it('should not warn when passing an empty map', () => {
+      pass(PropTypes.mapOf(React.PropTypes.number), mori.hashMap())
     })
 
     it('should warn for missing required values', () => {
       fail(
-        PropTypes.listOf(React.PropTypes.number).isRequired,
+        PropTypes.mapOf(React.PropTypes.number).isRequired,
         null,
         REQUIRED,
       )
       fail(
-        PropTypes.listOf(React.PropTypes.number).isRequired,
+        PropTypes.mapOf(React.PropTypes.number).isRequired,
         undefined,
         REQUIRED
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.mapOf(React.PropTypes.number), null)
+      pass(PropTypes.mapOf(React.PropTypes.number), undefined)
+    })
+
+    it('should support mapOf with complex types', () => {
+      pass(
+        PropTypes.mapOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.hashMap({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.mapOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.hashMap({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.mapOf(React.PropTypes.instanceOf(Thing)),
+        mori.hashMap(new Thing(), new Thing())
+      )
+    })
+
+    it('should warn with invalid items in the map', () => {
+      fail(
+        PropTypes.mapOf(React.PropTypes.number),
+        mori.hashMap('a', 1, 'b', 2, 'c', 'c'),
+        'Invalid prop `testProp[2]` of type `string` ' +
+        'supplied to `testComponent`, expected `number`.'
+      )
+    })
+
+    it('should warn with invalid complex types', () => {
+      fail(
+        PropTypes.mapOf(React.PropTypes.instanceOf(Thing)),
+        mori.hashMap(1, new Thing(), 2, 'foo'),
+        'Invalid prop `testProp[1]` of type `String` ' +
+        'supplied to `testComponent`, expected instance of `' + THING_NAME + '`.'
+      )
+    })
+  })
+
+  describe('vecOf Type', () => {
+    it('should support the vecOf propTypes', () => {
+      pass(PropTypes.vecOf(React.PropTypes.number), mori.vector(1, 2, 3))
+      pass(PropTypes.vecOf(React.PropTypes.string), mori.vector('a', 'b', 'c'))
+      pass(PropTypes.vecOf(React.PropTypes.oneOf(['a', 'b'])), mori.vector('a', 'b'))
+    })
+
+    it('should warn when passed something other than a Mori.vec', () => {
+      failAll(PropTypes.vecOf(React.PropTypes.number), 'Mori.vec', ['Mori.vec'])
+    })
+
+    it('should not warn when passing an empty list', () => {
+      pass(PropTypes.vecOf(React.PropTypes.number), mori.vector())
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.vecOf(React.PropTypes.number).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.vecOf(React.PropTypes.number).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.vecOf(React.PropTypes.number), null)
+      pass(PropTypes.vecOf(React.PropTypes.number), undefined)
+    })
+
+    it('should support vecOf with complex types', () => {
+      pass(
+        PropTypes.vecOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.vector({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.vecOf(React.PropTypes.shape({ a: React.PropTypes.number.isRequired })),
+        mori.vector({ a: 1 }, { a: 2 })
+      )
+
+      pass(
+        PropTypes.vecOf(React.PropTypes.instanceOf(Thing)),
+        mori.vector(new Thing(), new Thing())
+      )
+    })
+
+    it('should warn with invalid items in the list', () => {
+      fail(
+        PropTypes.vecOf(React.PropTypes.number),
+        mori.vector(1, 2, 'b'),
+        'Invalid prop `testProp[2]` of type `string` ' +
+        'supplied to `testComponent`, expected `number`.'
+      )
+    })
+
+    it('should warn with invalid complex types', () => {
+      fail(
+        PropTypes.vecOf(React.PropTypes.instanceOf(Thing)),
+        mori.vector(new Thing(), 'xyz'),
+        'Invalid prop `testProp[1]` of type `String` ' +
+        'supplied to `testComponent`, expected instance of `' + THING_NAME + '`.'
       )
     })
   })
