@@ -338,34 +338,6 @@ describe('MoriPropTypes', () => {
     })
   })
 
-  describe('rangeOf Type', () => {
-    it('should support the rangeOf propTypes', () => {
-      pass(PropTypes.rangeOf(React.PropTypes.number), mori.range(10))
-    })
-
-    it('should warn when passed something other than a Mori.range', () => {
-      failAll(PropTypes.rangeOf(React.PropTypes.number), 'Mori.range', ['Mori.range'])
-    })
-
-    it('should warn for missing required values', () => {
-      fail(
-        PropTypes.rangeOf(React.PropTypes.number).isRequired,
-        null,
-        REQUIRED,
-      )
-      fail(
-        PropTypes.rangeOf(React.PropTypes.number).isRequired,
-        undefined,
-        REQUIRED
-      )
-    })
-
-    it('should be implicitly optional and not warn without values', () => {
-      pass(PropTypes.rangeOf(React.PropTypes.number), null)
-      pass(PropTypes.rangeOf(React.PropTypes.number), undefined)
-    })
-  })
-
   describe('setOf Type', () => {
     it('should support the setOf propTypes', () => {
       pass(PropTypes.setOf(React.PropTypes.string), mori.set('a', 'b', 'c'))
@@ -587,572 +559,90 @@ describe('MoriPropTypes', () => {
       )
     })
   })
-})
 
-//   describe('IterableOf Type', function() {
-//     it('should support the iterableOf propTypes', function() {
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.list([1, 2, 3]))
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.string), Immutable.list(['a', 'b', 'c']))
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.list(['a', 'b']))
-//
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.Map({1: 1, 2: 2, 3: 3}))
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.string), Immutable.Map({1: 'a', 2: 'b', 3: 'c'}))
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.oneOf(['a', 'b'])), Immutable.Map({1: 'a', 2: 'b'}))
-//     })
-//
-//     it('should support iterableOf with complex types', function() {
-//       function Thing() {}
-//
-//       typeCheckPass(
-//         PropTypes.iterableOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.list([{a: 1}, {a: 2}])
-//       )
-//
-//       typeCheckPass(
-//         PropTypes.iterableOf(PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.fromJS([{a: 1}, {a: 2}])
-//       )
-//
-//       typeCheckPass(
-//         PropTypes.iterableOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.list([new Thing(), new Thing()])
-//       )
-//
-//       typeCheckPass(
-//         PropTypes.iterableOf(React.PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.Map({1: {a: 1}, 2: {a: 2}})
-//       )
-//
-//       typeCheckPass(
-//         PropTypes.iterableOf(PropTypes.shape({a: React.PropTypes.number.isRequired})),
-//         Immutable.fromJS({1: {a: 1}, 2: {a: 2}})
-//       )
-//
-//       typeCheckPass(
-//         PropTypes.iterableOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.Map({ 1: new Thing(), 2: new Thing() })
-//       )
-//     })
-//
-//     it('should warn with invalid items in the list', function() {
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.number),
-//         Immutable.list([1, 2, 'b']),
-//         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.number),
-//         Immutable.Map({ 1: 1, 2: 2, 3: 'b' }),
-//         'Invalid prop `testProp[2]` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should warn with invalid complex types', function() {
-//       function Thing() {}
-//       var name = Thing.name || '<<anonymous>>'
-//
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.list([new Thing(), 'xyz']),
-//         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
-//         name + '`.'
-//       )
-//
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.instanceOf(Thing)),
-//         Immutable.Map({ 1: new Thing(), 2: 'xyz' }),
-//         'Invalid prop `testProp[1]` of type `String` supplied to `testComponent`, expected instance of `' +
-//         name + '`.'
-//       )
-//     })
-//
-//     it('should warn when passed something other than an Immutable.Iterable', function() {
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.number),
-//         {'0': 'maybe-array', length: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.number),
-//         123,
-//         'Invalid prop `testProp` of type `number` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.number),
-//         'string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.number),
-//         [1, 2, 3],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//     })
-//
-//     it('should not warn when passing an empty iterable', function() {
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.list())
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.list([]))
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), Immutable.Map({}))
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), null)
-//       typeCheckPass(PropTypes.iterableOf(React.PropTypes.number), undefined)
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.number).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.iterableOf(React.PropTypes.number).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//   })
-//
-//   describe('RecordOf Type', function() {
-//     it('should warn for non objects', function() {
-//       fail(
-//         PropTypes.recordOf({}),
-//         'some string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.Record.'
-//       )
-//       fail(
-//         PropTypes.recordOf({}),
-//         ['array'],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.Record.'
-//       )
-//       fail(
-//         PropTypes.recordOf({}),
-//         {a: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.Record.'
-//       )
-//       fail(
-//         PropTypes.recordOf({}),
-//         Immutable.Map({ a: 1 }),
-//         'Invalid prop `testProp` of type `Immutable.Map` supplied to ' +
-//         '`testComponent`, expected a Mori.Record.'
-//       )
-//     })
-//
-//     it('should not warn for empty values', function() {
-//       typeCheckPass(PropTypes.recordOf({}), undefined)
-//       typeCheckPass(PropTypes.recordOf({}), null)
-//     })
-//
-//     it('should not warn for an empty Record object', function() {
-//       typeCheckPass(PropTypes.recordOf({}).isRequired, new (Immutable.Record({}))())
-//     })
-//
-//     it('should not warn for non specified types', function() {
-//       typeCheckPass(PropTypes.recordOf({}), new (Immutable.Record({key: 1}))())
-//     })
-//
-//     it('should not warn for valid types', function() {
-//       typeCheckPass(PropTypes.recordOf({key: React.PropTypes.number}), new (Immutable.Record({key: 1}))())
-//     })
-//
-//     it('should ignore null keys', function() {
-//       typeCheckPass(PropTypes.recordOf({key: null}), new (Immutable.Record({key: 1}))())
-//     })
-//
-//     it('should warn for required valid types', function() {
-//       fail(
-//         PropTypes.recordOf({key: React.PropTypes.number.isRequired}),
-//         new (Immutable.Record({}))(),
-//         'Required prop `testProp.key` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should warn for the first required type', function() {
-//       fail(
-//         PropTypes.recordOf({
-//           key: React.PropTypes.number.isRequired,
-//           secondKey: React.PropTypes.number.isRequired
-//         }),
-//         new (Immutable.Record({}))(),
-//         'Required prop `testProp.key` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should warn for invalid key types', function() {
-//       fail(PropTypes.recordOf({key: React.PropTypes.number}),
-//         new (Immutable.Record({key: 'abc'}))(),
-//         'Invalid prop `testProp.key` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(
-//         PropTypes.recordOf(PropTypes.recordOf({key: React.PropTypes.number})), null
-//       )
-//       typeCheckPass(
-//         PropTypes.recordOf(PropTypes.recordOf({key: React.PropTypes.number})), undefined
-//       )
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.recordOf({key: React.PropTypes.number}).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.recordOf({key: React.PropTypes.number}).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//   })
-//
-//   describe('Shape Types [deprecated]', function() {
-//     it('should warn for non objects', function() {
-//       fail(
-//         PropTypes.shape({}),
-//         'some string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//       fail(
-//         PropTypes.shape({}),
-//         ['array'],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//       fail(
-//         PropTypes.shape({}),
-//         {a: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//     })
-//
-//     it('should not warn for empty values', function() {
-//       typeCheckPass(PropTypes.shape({}), undefined)
-//       typeCheckPass(PropTypes.shape({}), null)
-//       typeCheckPass(PropTypes.shape({}), Immutable.fromJS({}))
-//     })
-//
-//     it('should not warn for an empty Immutable object', function() {
-//       typeCheckPass(PropTypes.shape({}).isRequired, Immutable.fromJS({}))
-//     })
-//
-//     it('should not warn for non specified types', function() {
-//       typeCheckPass(PropTypes.shape({}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should not warn for valid types', function() {
-//       typeCheckPass(PropTypes.shape({key: React.PropTypes.number}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should ignore null keys', function() {
-//       typeCheckPass(PropTypes.shape({key: null}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should warn for required valid types', function() {
-//       fail(
-//         PropTypes.shape({key: React.PropTypes.number.isRequired}),
-//         Immutable.fromJS({}),
-//         'Required prop `testProp.key` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should warn for the first required type', function() {
-//       fail(
-//         PropTypes.shape({
-//           key: React.PropTypes.number.isRequired,
-//           secondKey: React.PropTypes.number.isRequired
-//         }),
-//         Immutable.fromJS({}),
-//         'Required prop `testProp.key` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should warn for invalid key types', function() {
-//       fail(PropTypes.shape({key: React.PropTypes.number}),
-//         Immutable.fromJS({key: 'abc'}),
-//         'Invalid prop `testProp.key` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(
-//         PropTypes.shape(PropTypes.shape({key: React.PropTypes.number})), null
-//       )
-//       typeCheckPass(
-//         PropTypes.shape(PropTypes.shape({key: React.PropTypes.number})), undefined
-//       )
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.shape({key: React.PropTypes.number}).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.shape({key: React.PropTypes.number}).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//
-//     it('should probably not validate a list, but does', function() {
-//       var shape = {
-//         0: React.PropTypes.number.isRequired,
-//         1: React.PropTypes.string.isRequired,
-//         2: React.PropTypes.string
-//       }
-//       typeCheckPass(PropTypes.shape(shape), Immutable.list([1, '2']))
-//     })
-//   })
-//
-//   describe('Contains Types', function() {
-//     it('should warn for non objects', function() {
-//       fail(
-//         PropTypes.contains({}),
-//         'some string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//       fail(
-//         PropTypes.contains({}),
-//         ['array'],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//       fail(
-//         PropTypes.contains({}),
-//         {a: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.Iterable.'
-//       )
-//     })
-//
-//     it('should not warn for empty values', function() {
-//       typeCheckPass(PropTypes.contains({}), undefined)
-//       typeCheckPass(PropTypes.contains({}), null)
-//       typeCheckPass(PropTypes.contains({}), Immutable.fromJS({}))
-//     })
-//
-//     it('should not warn for an empty Immutable object', function() {
-//       typeCheckPass(PropTypes.contains({}).isRequired, Immutable.fromJS({}))
-//     })
-//
-//     it('should not warn for non specified types', function() {
-//       typeCheckPass(PropTypes.contains({}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should not warn for valid types', function() {
-//       typeCheckPass(PropTypes.contains({key: React.PropTypes.number}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should ignore null keys', function() {
-//       typeCheckPass(PropTypes.contains({key: null}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should warn for required valid types', function() {
-//       fail(
-//         PropTypes.contains({key: React.PropTypes.number.isRequired}),
-//         Immutable.fromJS({}),
-//         'Required prop `testProp.key` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should warn for the first required type', function() {
-//       fail(
-//         PropTypes.contains({
-//           key: React.PropTypes.number.isRequired,
-//           secondKey: React.PropTypes.number.isRequired
-//         }),
-//         Immutable.fromJS({}),
-//         'Required prop `testProp.key` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should warn for invalid key types', function() {
-//       fail(PropTypes.contains({key: React.PropTypes.number}),
-//         Immutable.fromJS({key: 'abc'}),
-//         'Invalid prop `testProp.key` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(
-//         PropTypes.contains(PropTypes.contains({key: React.PropTypes.number})), null
-//       )
-//       typeCheckPass(
-//         PropTypes.contains(PropTypes.contains({key: React.PropTypes.number})), undefined
-//       )
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.contains({key: React.PropTypes.number}).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.contains({key: React.PropTypes.number}).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//
-//     it('should probably not validate a list, but does', function() {
-//       var contains = {
-//         0: React.PropTypes.number.isRequired,
-//         1: React.PropTypes.string.isRequired,
-//         2: React.PropTypes.string
-//       }
-//       typeCheckPass(PropTypes.contains(contains), Immutable.list([1, '2']))
-//     })
-//   })
-//
-//   describe('MapContains Types', function() {
-//     it('should warn for non objects', function() {
-//       fail(
-//         PropTypes.mapContains({}),
-//         'some string',
-//         'Invalid prop `testProp` of type `string` supplied to ' +
-//         '`testComponent`, expected a Mori.Map.'
-//       )
-//       fail(
-//         PropTypes.mapContains({}),
-//         ['array'],
-//         'Invalid prop `testProp` of type `array` supplied to ' +
-//         '`testComponent`, expected a Mori.Map.'
-//       )
-//       fail(
-//         PropTypes.mapContains({}),
-//         {a: 1},
-//         'Invalid prop `testProp` of type `object` supplied to ' +
-//         '`testComponent`, expected a Mori.Map.'
-//       )
-//     })
-//
-//     it('should not warn for empty values', function() {
-//       typeCheckPass(PropTypes.mapContains({}), undefined)
-//       typeCheckPass(PropTypes.mapContains({}), null)
-//       typeCheckPass(PropTypes.mapContains({}), Immutable.fromJS({}))
-//     })
-//
-//     it('should not warn for an empty Immutable object', function() {
-//       typeCheckPass(PropTypes.mapContains({}).isRequired, Immutable.fromJS({}))
-//     })
-//
-//     it('should not warn for non specified types', function() {
-//       typeCheckPass(PropTypes.mapContains({}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should not warn for valid types', function() {
-//       typeCheckPass(PropTypes.mapContains({key: React.PropTypes.number}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should not warn for nested valid types', function() {
-//       typeCheckPass(
-//         PropTypes.mapContains({
-//           data: PropTypes.listOf(PropTypes.mapContains({
-//             id: React.PropTypes.number.isRequired
-//           })).isRequired
-//         }),
-//         Immutable.fromJS({data: [{id: 1}, {id: 2}]})
-//       )
-//     })
-//
-//     it('should warn for nested invalid types', function() {
-//       fail(
-//         PropTypes.mapContains({
-//           data: PropTypes.listOf(PropTypes.mapContains({
-//             id: React.PropTypes.number.isRequired
-//           })).isRequired
-//         }),
-//         Immutable.fromJS({data: [{id: 1}, {}]}),
-//         'Required prop `testProp.data[1].id` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should ignore null keys', function() {
-//       typeCheckPass(PropTypes.mapContains({key: null}), Immutable.fromJS({key: 1}))
-//     })
-//
-//     it('should warn for required valid types', function() {
-//       fail(
-//         PropTypes.mapContains({key: React.PropTypes.number.isRequired}),
-//         Immutable.fromJS({}),
-//         'Required prop `testProp.key` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should warn for the first required type', function() {
-//       fail(
-//         PropTypes.mapContains({
-//           key: React.PropTypes.number.isRequired,
-//           secondKey: React.PropTypes.number.isRequired
-//         }),
-//         Immutable.fromJS({}),
-//         'Required prop `testProp.key` was not specified in `testComponent`.'
-//       )
-//     })
-//
-//     it('should warn for invalid key types', function() {
-//       fail(PropTypes.mapContains({key: React.PropTypes.number}),
-//         Immutable.fromJS({key: 'abc'}),
-//         'Invalid prop `testProp.key` of type `string` supplied to `testComponent`, ' +
-//         'expected `number`.'
-//       )
-//     })
-//
-//     it('should be implicitly optional and not warn without values', function() {
-//       typeCheckPass(
-//         PropTypes.mapContains(PropTypes.mapContains({key: React.PropTypes.number})), null
-//       )
-//       typeCheckPass(
-//         PropTypes.mapContains(PropTypes.mapContains({key: React.PropTypes.number})), undefined
-//       )
-//     })
-//
-//     it('should warn for missing required values', function() {
-//       fail(
-//         PropTypes.mapContains({key: React.PropTypes.number}).isRequired,
-//         null,
-//         requiredMessage
-//       )
-//       fail(
-//         PropTypes.mapContains({key: React.PropTypes.number}).isRequired,
-//         undefined,
-//         requiredMessage
-//       )
-//     })
-//
-//     it('should not validate a list', function() {
-//       var contains = {
-//         0: React.PropTypes.number.isRequired,
-//         1: React.PropTypes.string.isRequired,
-//         2: React.PropTypes.string
-//       }
-//       fail(
-//         PropTypes.mapContains(contains),
-//         Immutable.list([1, '2']),
-//         'Invalid prop `testProp` of type `Immutable.list` supplied to `testComponent`, expected a Mori.Map.'
-//       )
-//     })
-//   })
-// })
+  describe('contains Type', () => {
+    it('should not warn for empty values', () => {
+      pass(PropTypes.contains({}), undefined)
+      pass(PropTypes.contains({}), null)
+      pass(PropTypes.contains({}), mori.toClj({}))
+    })
+
+    it('should warn for non objects', () => {
+      fail(
+        PropTypes.contains({}),
+        'some string',
+        'Invalid prop `testProp` of type `string` supplied to ' +
+        '`testComponent`, expected a `Mori.map`.'
+      )
+      fail(
+        PropTypes.contains({}),
+        ['array'],
+        'Invalid prop `testProp` of type `array` supplied to ' +
+        '`testComponent`, expected a `Mori.map`.'
+      )
+      fail(
+        PropTypes.contains({}),
+        { a: 1 },
+        'Invalid prop `testProp` of type `object` supplied to ' +
+        '`testComponent`, expected a `Mori.map`.'
+      )
+    })
+
+    it('should warn for missing required values', () => {
+      fail(
+        PropTypes.contains({}).isRequired,
+        null,
+        REQUIRED,
+      )
+      fail(
+        PropTypes.contains({}).isRequired,
+        undefined,
+        REQUIRED
+      )
+    })
+
+    it('should not warn for non specified types', () => {
+      pass(PropTypes.contains({}), mori.toClj({ key: 1 }))
+    })
+
+    it('should not warn for valid types', () => {
+      pass(PropTypes.contains({ key: React.PropTypes.number }), mori.toClj({ key: 1 }))
+    })
+
+    it('should ignore null keys', () => {
+      pass(PropTypes.contains({ key: null }), mori.toClj({ key: 1 }))
+    })
+
+    it('should warn for required valid types', () => {
+      fail(
+        PropTypes.contains({ key: React.PropTypes.number.isRequired }),
+        mori.toClj({}),
+        'Required prop `testProp.key` was not specified in `testComponent`.'
+      )
+    })
+
+    it('should warn for the first required type', () => {
+      fail(
+        PropTypes.contains({
+          key: React.PropTypes.number.isRequired,
+          secondKey: React.PropTypes.number.isRequired,
+        }),
+        mori.toClj({}),
+        'Required prop `testProp.key` was not specified in `testComponent`.'
+      )
+    })
+
+    it('should warn for invalid key types', () => {
+      fail(PropTypes.contains({ key: React.PropTypes.number }),
+        mori.toClj({ key: 'abc' }),
+        'Invalid prop `testProp.key` of type `string` supplied to `testComponent`, ' +
+        'expected `number`.'
+      )
+    })
+
+    it('should be implicitly optional and not warn without values', () => {
+      pass(PropTypes.contains(PropTypes.contains({})), null)
+      pass(PropTypes.contains(PropTypes.contains({})), undefined)
+    })
+  })
+})

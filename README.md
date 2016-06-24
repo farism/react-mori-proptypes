@@ -63,6 +63,25 @@ MoriPropTypes.sortedMap      // similar to MoriPropTypes.vecOf, but specific to 
 MoriPropTypes.sortedSet      // similar to MoriPropTypes.vecOf, but specific to sortedSets
 MoriPropTypes.vecOf          // based on React.PropTypes.arrayOf
 ```
+#### Contains Types
+
+React-Mori-PropTypes also supports a `contains` type, which is analogous to `React.PropTypes.shape` type. This propType validator supports defining the shape of a hashMap, I.E. the keys/value types. You should only use a `mori.map` or `mori.sortedMap` with `contains`.
+
+It is used the same way as `shape`:
+
+```
+static propTypes = {
+  person: MoriPropTypes.contains({
+    firstName: React.PropTypes.string.isRequired,
+    lastName: React.PropTypes.string.isRequired,
+    age: React.PropTypes.number,
+  })
+};
+
+static defaultProps = {
+  person: mori.hashMap('firstName', 'John', 'lastName', 'Smith')
+}
+```
 
 #### Contributing
 

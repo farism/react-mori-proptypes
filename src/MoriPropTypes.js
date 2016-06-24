@@ -3,7 +3,7 @@
  * modified to make it possible to validate mori.js data.
  *    MoriPropTypes.vectorOf is patterned after React.PropTypes.arrayOf, but for mori.vector
  *    MoriPropTypes.listOf is patterned after React.PropTypes.listOf, but for mori.list
- *    MoriPropTypes.shape is based on React.PropTypes.shape, but for any mori.iterable
+ *    MoriPropTypes.contains is based on React.PropTypes.shape, but for mori.hashMap
  */
 
 import mori from 'mori'
@@ -163,6 +163,40 @@ const createCollectionTypeChecker = (typeChecker, moriClassName, moriTypeValidat
   return createChainableTypeChecker(validate)
 }
 
+const createShapeTypeChecker = (shapeTypes, moriClassName, moriTypeValidator) => {
+  const validate = (props, propName, componentName, location, propFullName) => {
+    const propValue = props[propName]
+
+    if (!moriTypeValidator(propValue)) {
+      const propType = getPropType(propValue)
+      return new Error(
+        `Invalid ${location} \`${propFullName || propName}\` of type ` +
+        `\`${propType}\` supplied to \`${componentName}\`, ` +
+        `expected a \`Mori.${moriClassName}\`.`
+      )
+    }
+
+    const keys = Object.keys(shapeTypes)
+    const innerProps = mori.toJs(propValue)
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+
+      const checker = shapeTypes[key]
+      if (!checker) {
+        continue
+      }
+
+      const error = checker(innerProps, key, componentName, location, `${propFullName || propName}.${key}`);
+      if (error) {
+        return error
+      }
+    }
+  }
+
+  return createChainableTypeChecker(validate)
+}
+
 export const coll = createMoriTypeChecker('coll', mori.isCollection)
 
 export const map = createMoriTypeChecker('map', mori.isMap)
@@ -211,6 +245,10 @@ export const vecOf = (typeChecker) => {
   return createCollectionTypeChecker(typeChecker, 'vec', mori.isVector)
 }
 
+export const contains = (typeChecker) => {
+  return createShapeTypeChecker(typeChecker, 'map', mori.isMap)
+}
+
 export default {
   // primitives
   coll,
@@ -232,4 +270,7 @@ export default {
   sortedMapOf,
   sortedSetOf,
   vecOf,
+
+  // shape
+  contains,
 }
