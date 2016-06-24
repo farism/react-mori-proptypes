@@ -65,6 +65,7 @@ MoriPropTypes.sortedSet      // similar to MoriPropTypes.vecOf, but specific to 
 MoriPropTypes.vecOf          // based on React.PropTypes.arrayOf
 ```
 
+
 #### Caveats
 
 Some of the `listOf` validators only make sense for certain data structures. A `mori.range`, for example, will only ever contain number types. It wouldn't make sense to create a `MoriPropTypes.rangeOf(React.PropTypes.object)` validator.

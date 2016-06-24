@@ -19,8 +19,11 @@
   },
   "keywords": [
     "react",
+    "proptype",
+    "immutable",
+    "mori",
     "morijs",
-    "proptype"
+    "mori-js"
   ],
   "author": "Faris Mustafa <farismmk@gmail.com>",
   "license": "MIT",
