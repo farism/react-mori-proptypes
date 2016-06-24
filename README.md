@@ -3,7 +3,7 @@
 PropType validators that work with [Mori.js](http://swannodette.github.io/mori/).
 
 ## About
-This package was inspired by [react-immutable-proptypes](https://github.com/HurricaneJames/react-immutable-proptypes), which I had used often. Striving to become more FRP, I have switched to using [mori.js](http://swannodette.github.io/mori/) for my immutable needs. I could not find a similar package for validating propTypes with mori data structures, so I used `reat-immutable-proptypes` as a base for this project.
+This package was inspired by [react-immutable-proptypes](https://github.com/HurricaneJames/react-immutable-proptypes), which I had used often. Striving to become more FRP, I have switched to using [mori.js](http://swannodette.github.io/mori/) for my immutable needs. I could not find a similar package for validating propTypes with mori data structures, so created this package and used `react-immutable-proptypes` as a base.
 
 ## Getting Started
 ### Install
