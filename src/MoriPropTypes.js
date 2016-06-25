@@ -153,7 +153,14 @@ const createCollectionTypeChecker = (typeChecker, moriClassName, moriTypeValidat
 
     const propValues = toArray(propValue) || []
     for (let i = 0, len = propValues.length; i < len; i++) {
-      const error = typeChecker(propValues, i, componentName, location, `${propFullName || propName}[${i}]`)
+      const error = typeChecker(
+        propValues,
+        i,
+        componentName,
+        location,
+        `${propFullName || propName}[${i}]`
+      )
+
       if (error instanceof Error) {
         return error
       }
@@ -187,7 +194,14 @@ const createShapeTypeChecker = (shapeTypes, moriClassName, moriTypeValidator) =>
         continue
       }
 
-      const error = checker(innerProps, key, componentName, location, `${propFullName || propName}.${key}`);
+      const error = checker(
+        innerProps,
+        key,
+        componentName,
+        location,
+        `${propFullName || propName}.${key}`
+      )
+
       if (error) {
         return error
       }
