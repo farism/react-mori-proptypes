@@ -20,12 +20,12 @@ import { vector } from 'mori';
 const MyComponent extends React.Component {
 
   static propTypes = {
-    someList: MoriPropTypes.vec,
     someMap: MoriPropTypes.map.isRequired,
+    someVec: MoriPropTypes.vec,
   };
 
   static defaultProps = {
-    someList: vector(1, 2, 3, 4),
+    someVec: vector(1, 2, 3, 4),
   };
 
   render() {
@@ -46,7 +46,7 @@ MoriPropTypes.list         // mori.isList
 MoriPropTypes.map          // mori.isMap
 MoriPropTypes.queue        // isQueue
 MoriPropTypes.range        // isRange
-MoriPropTypes.set          // mori.isSetisSet
+MoriPropTypes.set          // mori.isSet
 MoriPropTypes.sortedMap    // isSortedMap
 MoriPropTypes.sortedSet    // isSortedSet
 MoriPropTypes.vec          // mori.isVec
