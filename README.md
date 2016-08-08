@@ -1,4 +1,4 @@
-# react-mori-proptypes [![npm version](https://badge.fury.io/js/react-mori-proptypes.svg)](https://badge.fury.io/js/react-mori-proptypes) [![Circle CI](https://circleci.com/gh/farism/react-mori-proptypes/tree/master.svg?style=svg)](https://circleci.com/gh/farism/react-mori-proptypes/tree/master)
+# react-mori-proptypes [![npm version](https://badge.fury.io/js/react-mori-proptypes.svg)](https://www.npmjs.com/package/react-mori-proptypes) [![npm](https://img.shields.io/npm/dt/react-mori-proptypes.svg?maxAge=2592000)](https://www.npmjs.com/package/react-mori-proptypes) [![Circle CI](https://circleci.com/gh/farism/react-mori-proptypes/tree/master.svg?style=svg)](https://circleci.com/gh/farism/react-mori-proptypes/tree/master)
 
 PropType validators that work with [Mori.js](http://swannodette.github.io/mori/).
 
