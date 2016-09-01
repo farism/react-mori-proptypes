@@ -17,7 +17,7 @@ Usage is simple, they work with and like any React.PropType.* validator.
 import MoriPropTypes from 'react-mori-proptypes';
 import { vector } from 'mori';
 
-const MyComponent extends React.Component {
+class MyComponent extends React.Component {
 
   static propTypes = {
     someMap: MoriPropTypes.map.isRequired,
